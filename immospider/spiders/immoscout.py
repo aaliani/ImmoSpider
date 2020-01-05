@@ -25,6 +25,7 @@ class ImmoscoutSpider(scrapy.Spider):
         for line in response.xpath(self.script_xpath).extract_first().split('\n'):
             if line.strip().startswith('resultListModel'):
                 immo_json = line.strip()
+                #print(immo_json)
                 immo_json = json.loads(immo_json[17:-1])
 
                 #TODO: On result pages with just a single result resultlistEntry is not a list, but a dictionary.
@@ -34,8 +35,25 @@ class ImmoscoutSpider(scrapy.Spider):
                     item = ImmoscoutItem()
 
                     data = result["resultlist.realEstate"]
+                    tags = []
+                    try: 
+                        tags.append(result["realEstateTags"]["tag"])
+                        if type(tags[0]) == list:
+                            tags = tags[0]
+                    except:
+                        pass
+                        """
+                        [
+                                    "Balkon\/Terrasse",
+                                    "Einbauküche",
+                                    "Keller",
+                                    "Aufzug",
+                                    "Wohnberechtigungsschein\/erforderlich"
+                                ]
+                        """
 
                     # print(data)
+                    # print(tags)
 
                     item['immo_id'] = data['@id']
                     item['url'] = response.urljoin("/expose/" + str(data['@id']))
@@ -66,13 +84,42 @@ class ImmoscoutSpider(scrapy.Spider):
                     if "plotArea" in data:
                         item["area"] = data["plotArea"]
                     if "cellar" in data:
-                        item["cellar"] = data["cellar"]       
+                        item["cellar"] = data["cellar"]
+
+                    if "Balkon\/Terrasse" in tags:
+                        item["balcony"] = "true"
+
+                    if "Einbauküche" in tags:
+                        item["kitchen"] = "true"
+
+                    if "Keller" in tags:
+                        item["cellar"] = "true"
+
+                    if "Aufzug" in tags:
+                        item["elevator"] = "true"
+                    else:
+                        item["elevator"] = "false"
+
+                    if "WG-geeignet" in tags:
+                        item["wg"] = "true"
+                    else:
+                        item["wg"] = "false"
+
+                    if "Wohnberechtigungsschein\/erforderlich" in tags:
+                        item["wbs"] = "true"
+                    else:
+                        item["wbs"] = "false"
 
                     try:
                         contact = data['contactDetails']
                         item['contact_name'] = contact['firstname'] + " " + contact["lastname"]
                     except:
                         item['contact_name'] = None
+
+                    try:
+                        item['phone'] = contact['phoneNumber']
+                    except:
+                        item['phone'] = None
 
                     try:
                         item['media_count'] = len(data['galleryAttachments']['attachment'])

@@ -19,6 +19,7 @@ class ImmoscoutItem(scrapy.Item):
     zip_code = scrapy.Field()
     district = scrapy.Field()
     contact_name = scrapy.Field()
+    phone = scrapy.Field() #
     media_count = scrapy.Field()
     lat = scrapy.Field()
     lng = scrapy.Field()
@@ -28,10 +29,14 @@ class ImmoscoutItem(scrapy.Item):
     extra_costs = scrapy.Field()
     kitchen = scrapy.Field()
     balcony = scrapy.Field()
+    cellar = scrapy.Field()
+    elevator = scrapy.Field() #
+    floor = scrapy.Field() #
     garden = scrapy.Field()
     private = scrapy.Field()
+    wg = scrapy.Field() #
+    wbs = scrapy.Field() #
     area = scrapy.Field()
-    cellar = scrapy.Field()
     time_dest = scrapy.Field()  # time to destination using transit or driving
     time_dest2 = scrapy.Field()
     time_dest3 = scrapy.Field()
