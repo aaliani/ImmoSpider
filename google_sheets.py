@@ -44,6 +44,8 @@ class Google_Sheet():
                     'Pricetrend',
                     'Pricetrendbuy',
                     'Pricetrendrent',
+                    'Score',
+                    'Qualified?'
                     'Contacted?',
                     'Contacted At'
                     ]

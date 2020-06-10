@@ -3,6 +3,8 @@ from google_sheets import Google_Sheet
 from crawler import Crawler
 
 import pandas as pd
+import numpy as np
+import time
 
 def update_row(sheet, metadata): 
     header = sheet.get_header()
@@ -16,12 +18,64 @@ def update_row(sheet, metadata):
 
     sheet.update_row(list(row.values()))
 
-def is_qualified(metadata):
+def score_listing(metadata):
+
     try:
-        balcony = metadata['Balcony']
+        try:
+            t_rent = float(metadata['Total Rent'])
+        except:
+            t_rent = float(metadata['Base Rent'])
+        score = (t_rent / float(metadata['Living Space'])) / np.sqrt(float(metadata['No Rooms']))
+    except Exception as e:
+        print(e)
+        metadata['Qualified?'] = 'n'
+        return metadata
+
+    keys = ['Balcony', 'Has Kitchen', 'Lift', 'Cellar', 'WG Possible']
+
+    for k in keys:
+        try:
+            if metadata[k] == 'y':
+                score -= 0.5
+        except:
+            continue
+
+    try:
+        if 5 < float(metadata['Floor']) < 10:
+            score -= 0.5
+
+        if float(metadata['Floor'] )>= 10:
+            score -= 1.2
     except:
-        balcony = 'n'
-    return True if balcony == 'y' else False
+        pass
+
+    metadata['Qualified?'] = 'y'
+    metadata['Score'] = score
+    
+    if score > 9:
+        metadata['Qualified?'] = 'n'
+    
+    else:
+        try:
+            if metadata['Balcony'] == 'n':
+                metadata['Qualified?'] = 'n'
+        except:
+            pass
+        try:
+            if float(metadata['Floor']) > 2 and metadata['Lift'] == 'n':
+                metadata['Qualified?'] = 'n'
+        except:
+            pass
+
+    if score < 6.75:
+        metadata['Qualified?'] = 'y'
+        try:
+            if metadata['WBS'] == 'y':
+                metadata['Qualified?'] = 'n'
+        except:
+            pass
+
+    return metadata
 
 def main():
 
@@ -33,7 +87,9 @@ def main():
     print(ids)
 
     ### get all listings
-    listings = crawler.get_listings()
+    shape = 'eW1sX0lzZ2JwQWZ1Qml3Q3BFZ2JCYk5zc0FfQ2ttQWxccWZCbEpvR3pBcU14S2lDYklrTGZDbXFAXGFsQGtAeWNAVmlXekNreUJ7Q314QHlHYU9hT2BAfXRAcmVAe3RAck9RcWBAX1V9XGJ8QHl1QmpLeWFAbF19ZkFyUGd0QXFFeXZAa0tpUnVPeUNvZ0BkSXNgQHJeeWlAZn1Ac1pmZ0B3U2JkQHtjQXF2QHd7QGtMY3hAbUx5RUR9Q2xIe3NAbGdEeVh0YkFvYkBoZEJjTHB4QnRAandAZWJAdkFxcEBmfUBiWWhtQWhcbGdBYGhAYnJBYmJBa3VCaFJ_ZUB1W3JfQmRwQGBWfnRAalJ0T2RjQWVIYmZAdkl0V2hUeEN1S2ZxQ3JoQXFQ'
+    listings = crawler.get_listings(shape_id=shape)
+    time.sleep(5)
 
     for listing in listings:
 
@@ -49,16 +105,25 @@ def main():
             continue
 
         ### check qualification
-        qualified = is_qualified(metadata)
+        metadata = score_listing(metadata)
 
-        if qualified:
+        if metadata['Qualified?'] == 'y':
             ### contact ad
+            # if not metadata['Scout Id'] in ids:
             timestamp, contacted = crawler.contact_ad(listing)
-            metadata['Contacted?'] = 'y' if contacted else 'n'
+            if contacted:
+                metadata['Contacted?'] = 'y'
+                print("Ad %s contacted at %s" % (metadata['Scout Id'], timestamp))
+            else:
+                metadata['Contacted?'] = 'n'
+                print("Could not contact ad %s at %s" % (metadata['Scout Id'], timestamp))
             metadata['Contacted At'] = timestamp
+        else:
+            print("Ad %s not qualified..." % metadata['Scout Id'])
 
         ### update row
         update_row(sheet, metadata)
+        time.sleep(10)
 
     crawler.close_crawler()
 
@@ -100,4 +165,6 @@ def main():
     #     sheet.update_row(lst)
 
 if __name__ == '__main__':
-    main()
+    while True:
+        main()
+        time.sleep(60*3)
