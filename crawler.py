@@ -4,6 +4,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
+from selenium.webdriver.common.action_chains import ActionChains
 
 from datetime import datetime, timedelta
 from dateutil.parser import parse
@@ -154,20 +155,22 @@ Anna & Aqeel
                     self.driver.find_element_by_id(field['id']).clear()
                     self.driver.find_element_by_id(field['id']).send_keys(field['val'])
                 except Exception as e:
-                    print(e)
+                    print(field, e)
                     pass
 
             try:
                 Select(self.driver.find_element_by_id(salutation['id'])).select_by_value(salutation['val'])
             except Exception as e:
-                print(e)
+                print("salutation", e)
                 pass
             
             submit_text = self.driver.find_element_by_css_selector(submit_btn_css).find_element_by_tag_name('span').get_attribute('innerHTML').strip()            
 
             if submit_text == 'Weiter':
 
-                self.driver.find_element_by_css_selector(submit_btn_css).click()
+                el = self.driver.find_element_by_css_selector(submit_btn_css)#.find_element_by_xpath("..")
+                ActionChains(self.driver).move_to_element(el).click().perform()
+
                 e = WebDriverWait(self.driver, 5).until(EC.presence_of_element_located((By.CSS_SELECTOR, submit_btn_css)))
                 
                 for field in [employment, income, documents, persons]:
@@ -178,37 +181,48 @@ Anna & Aqeel
                         print(field)
                         print(e)
                         pass
-                    time.sleep(1)
+                    #time.sleep(1)
 
                 try:
                     if 'ng-empty' in self.driver.find_element_by_xpath("//*[@id='contactForm-hasPets.no']").get_attribute('class').split():
-                        self.driver.find_element_by_xpath("//*[@for='contactForm-hasPets.no']").click()
+                        el = self.driver.find_element_by_xpath("//*[@for='contactForm-hasPets.no']")
+                        ActionChains(self.driver).move_to_element(el).click().perform()
                 except Exception as e:
                     print('pets: ', e)
                     pass
 
                 try:
                     if 'ng-empty' in self.driver.find_element_by_xpath("//*[@id='moveInDateType.flex']").get_attribute('class').split():
-                        self.driver.find_element_by_xpath("//*[@for='moveInDateType.flex']").click()
+                        el = self.driver.find_element_by_xpath("//*[@for='moveInDateType.flex']")
+                        ActionChains(self.driver).move_to_element(el).click().perform()
                 except Exception as e:
                     print('move_in: ', e)
                     pass
             
             try:
-                if 'ng-empty' in self.driver.find_element_by_xpath("//*[@id='id='contactForm-privacyPolicyAccepted']").get_attribute('class').split():
-                    self.driver.find_element_by_id('contactForm-privacyPolicyText').click()
+                if 'ng-empty' in self.driver.find_element_by_xpath("//*[@id='contactForm-privacyPolicyAccepted']").get_attribute('class').split():
+                    el = self.driver.find_element_by_id('contactForm-privacyPolicyText')
+                    ActionChains(self.driver).move_to_element(el).click().perform()
             except Exception as e:
                 print('move_in: ', e)
                 pass
             
-            time.sleep(2)
-            self.driver.find_element_by_css_selector(submit_btn_css).click()
+            time.sleep(1)
 
-            WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, '.status-confirm')))
+            try:
+                el = self.driver.find_element_by_css_selector(submit_btn_css)#.find_element_by_xpath("..")
+                ActionChains(self.driver).move_to_element(el).click().perform()
+
+                WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, '.status-confirm')))
+            
+            except Exception as e:
+                print("couldn't submit")
+                print(e)
 
             return datetime.now().strftime("%Y-%m-%dT%H:%M:%S"), True
 
         except Exception as e:
+            print("returning false")
             print(e)
             return datetime.now().strftime("%Y-%m-%dT%H:%M:%S"), False
 

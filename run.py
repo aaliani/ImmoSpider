@@ -5,6 +5,7 @@ from crawler import Crawler
 import pandas as pd
 import numpy as np
 import time
+import sys
 
 def update_row(sheet, metadata): 
     header = sheet.get_header()
@@ -84,7 +85,7 @@ def main():
 
     ### get all ids
     ids = sheet.get_all_ids()
-    print(ids)
+    # print(ids)
 
     ### get all listings
     shape = 'eW1sX0lzZ2JwQWZ1Qml3Q3BFZ2JCYk5zc0FfQ2ttQWxccWZCbEpvR3pBcU14S2lDYklrTGZDbXFAXGFsQGtAeWNAVmlXekNreUJ7Q314QHlHYU9hT2BAfXRAcmVAe3RAck9RcWBAX1V9XGJ8QHl1QmpLeWFAbF19ZkFyUGd0QXFFeXZAa0tpUnVPeUNvZ0BkSXNgQHJeeWlAZn1Ac1pmZ0B3U2JkQHtjQXF2QHd7QGtMY3hAbUx5RUR9Q2xIe3NAbGdEeVh0YkFvYkBoZEJjTHB4QnRAandAZWJAdkFxcEBmfUBiWWhtQWhcbGdBYGhAYnJBYmJBa3VCaFJ_ZUB1W3JfQmRwQGBWfnRAalJ0T2RjQWVIYmZAdkl0V2hUeEN1S2ZxQ3JoQXFQ'
@@ -169,5 +170,7 @@ if __name__ == '__main__':
         try: 
             main()
             time.sleep(60*3)
+        except KeyboardInterrupt:
+            sys.exit()
         except:
             pass
