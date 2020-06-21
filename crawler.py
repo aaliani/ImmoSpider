@@ -288,6 +288,3 @@ Anna & Aqeel
 
     def close_crawler(self):
         self.driver.close()
-
-
-        

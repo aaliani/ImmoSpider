@@ -85,7 +85,7 @@ def main():
 
     ### get all ids
     ids = sheet.get_all_ids()
-    # print(ids)
+    print(len(ids))
 
     ### get all listings
     shape = 'eW1sX0lzZ2JwQWZ1Qml3Q3BFZ2JCYk5zc0FfQ2ttQWxccWZCbEpvR3pBcU14S2lDYklrTGZDbXFAXGFsQGtAeWNAVmlXekNreUJ7Q314QHlHYU9hT2BAfXRAcmVAe3RAck9RcWBAX1V9XGJ8QHl1QmpLeWFAbF19ZkFyUGd0QXFFeXZAa0tpUnVPeUNvZ0BkSXNgQHJeeWlAZn1Ac1pmZ0B3U2JkQHtjQXF2QHd7QGtMY3hAbUx5RUR9Q2xIe3NAbGdEeVh0YkFvYkBoZEJjTHB4QnRAandAZWJAdkFxcEBmfUBiWWhtQWhcbGdBYGhAYnJBYmJBa3VCaFJ_ZUB1W3JfQmRwQGBWfnRAalJ0T2RjQWVIYmZAdkl0V2hUeEN1S2ZxQ3JoQXFQ'
@@ -94,6 +94,13 @@ def main():
 
     for listing in listings:
 
+        listing_id = listing.split('/')[-1]
+        print(listing_id)
+
+        if listing_id in ids:
+            print("Ad %s already processed..." % listing_id)
+            continue
+       
         ### get ad data
         metadata = crawler.get_ad_data(listing)
 
@@ -101,10 +108,6 @@ def main():
             print("Error fetching metadata...")
             continue
         
-        if metadata['Scout Id'] in ids:
-            print("Ad %s already processed..." % metadata['Scout Id'])
-            continue
-
         ### check qualification
         metadata = score_listing(metadata)
 
@@ -124,7 +127,7 @@ def main():
 
         ### update row
         update_row(sheet, metadata)
-        time.sleep(10)
+        time.sleep(2)
 
     crawler.close_crawler()
 
