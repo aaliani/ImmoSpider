@@ -27,7 +27,7 @@ class Crawler():
         # CHROMEDRIVER_PATH = '/Applications/chromedriver'
 
         chrome_options = Options()  
-        chrome_options.add_argument("--headless")
+        # chrome_options.add_argument("--headless")
         chrome_options.add_argument('--ignore-certificate-errors')
         chrome_options.add_argument("--test-type")
 
@@ -45,6 +45,16 @@ class Crawler():
                                 'Online-Besichtigung',
                                 'Einbauküche'
                                 ]
+
+    def remove_iframes(self):
+
+        time.sleep(5)
+        iframes = self.driver.find_elements_by_tag_name('iframe')
+        # print(iframes)
+        for frame in iframes:
+            self.driver.execute_script("arguments[0].setAttribute('style','display:none;');",frame)
+
+        return
 
     def get_listings(self, 
         shape_id = 'e3BsX0l1ZGBwQWpvQG9NZ0RrdUFoeUB8TH5Ab1tgbUBjdEBsTGVzQWFFY1B6TGdJbE1nUnxKYUNqSGJFckJsRGxNbk5wQ2NQekZfXGpMeVl7QnNHeUd5S2tSfVN9UW9rQGtGZXVAUHdAcFNteUB8Q3twQHBDb3BBeUppb0BnQGdfQHBRbUZwQXdNcEF9eEBoQmtwQGpNb1ViSHVQcFV1ZkB8U2NPaE99YkByQnNPcEF7SmhGYURwV3xFYkpjQXpoQGpaeFl7Un5OdVd2SnNXeEp9eEB9QnNHU3lZc1VzVndacUd7R2NBeUdmQ3NCfExtakBwYUFfVHhHZWpAZlB5SXFrQGdnQHZYZ1RiSGFHfUZ_T3NRa01xa0BfTm9Val5jfEByUWtfQWRFYVV5TmNjQHFOcWBAdV5oYUBxVHpLe1Z_VGNJYEB1TWNIb1N0R2tBeUNhTGZKZ1RySG9VcGtAX2JAamtAfVB7Y0B3SmNed0txXWVVZ1hjSX1Ua05nSX1RP29GYGRAcUJydEBHck13WGFDa2pBYkF9UnhKZUV2WHJAYnNAY0FadU5sW2tMck9xd0BsaEF9U2JoQXdDclFxTnx0QGhDaHBAWnJhQFV6YUByQXBsQGNBdFhpT3pJfkZ6TGxEcEdoQn5GdkJsTW1KcE5lQ2haZ0Z4WHlFektnQm5GZ0JoaEB9QG5rQHBBYlZqTXppQGpLcFVxYUBkckFSblZqXXxEYnRAdXVAelJpW3pKd0xwRm9NalliXmJLfExiZ0B2UXBRbltoR3JQX0R6bEBoQWRQelt8VUFSfUxge0F7SX5vQElod0B8QWRJblZuY0BwYkFlSX5dbkY.',
@@ -149,6 +159,7 @@ Anna & Aqeel
         fields = [msg_field, firstname, lastname, email, phone, street, house_no, plz, city]
 
         try:
+            self.remove_iframes()
             for field in fields:
                 time.sleep(1)
                 try:
@@ -172,6 +183,7 @@ Anna & Aqeel
                 ActionChains(self.driver).move_to_element(el).click().perform()
 
                 e = WebDriverWait(self.driver, 5).until(EC.presence_of_element_located((By.CSS_SELECTOR, submit_btn_css)))
+                self.remove_iframes()
                 
                 for field in [employment, income, documents, persons]:
                     try:
@@ -207,7 +219,7 @@ Anna & Aqeel
                 print('move_in: ', e)
                 pass
             
-            time.sleep(1)
+            #time.sleep(1)
 
             try:
                 el = self.driver.find_element_by_css_selector(submit_btn_css)#.find_element_by_xpath("..")
@@ -219,13 +231,13 @@ Anna & Aqeel
                 print("couldn't submit")
                 print(e)
 
-            return datetime.now().strftime("%Y-%m-%dT%H:%M:%S"), True
-
         except Exception as e:
             print("returning false")
             print(e)
             return datetime.now().strftime("%Y-%m-%dT%H:%M:%S"), False
 
+        return datetime.now().strftime("%Y-%m-%dT%H:%M:%S"), True
+        
     def get_ad_data(self, link):
         
         try:

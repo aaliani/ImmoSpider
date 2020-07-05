@@ -169,11 +169,13 @@ def main():
     #     sheet.update_row(lst)
 
 if __name__ == '__main__':
-    while True:
-        try: 
-            main()
-            time.sleep(60*3)
-        except KeyboardInterrupt:
-            sys.exit()
-        except:
-            pass
+    # while True:
+    #     try: 
+    #         main()
+    #         time.sleep(60*3)
+    #     except KeyboardInterrupt:
+    #         sys.exit()
+    #     except:
+    #         pass
+
+    main()
